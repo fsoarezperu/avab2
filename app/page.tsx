@@ -1,6 +1,6 @@
 'use client';  // Add this at the top of the file
 
-import { Container, Box, Typography, Stack, Paper, AppBar, Toolbar, Button, IconButton } from '@mui/material';
+import { Container, Box, Typography, Stack, Paper, AppBar, Toolbar, Button, IconButton, Grid } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Image from 'next/image';
 import Slider from 'react-slick';
@@ -12,33 +12,22 @@ import { useRef } from 'react';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import XIcon from '@mui/icons-material/X';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
 export default function Home() {
-  const sliderRef = useRef<Slider>(null);
-
-  const next = () => {
-    sliderRef.current?.slickNext();
-  };
-
-  const previous = () => {
-    sliderRef.current?.slickPrev();
-  };
-
   return (
-    <Container maxWidth="lg">
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'grid',
-          gridTemplateRows: 'auto 1fr 20px',
-          gap: 2,
-          py: 4
-        }}
-      >
-        <AppBar position="static" sx={{ gridRow: 1, backgroundColor: 'white', boxShadow: 0 }}>
-          <Toolbar sx={{ justifyContent: 'space-between' }}>
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <AppBar position="sticky" sx={{ 
+        backgroundColor: 'white', 
+        boxShadow: 0,
+        borderBottom: '1px solid',
+        borderColor: 'divider'
+      }}>
+        <Container maxWidth="xl">
+          <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 0, sm: 0 } }}>
             {/* Logo */}
-            <Box sx={{ width: 140, height: 40, position: 'relative' }}>
+            <Box sx={{ width: 100, height: 40, position: 'relative' }}>
               <Image
                 src="/logo.png"
                 alt="Logo"
@@ -55,322 +44,230 @@ export default function Home() {
                 display: { xs: 'none', md: 'flex' }
               }}
             >
-              <Button color="inherit" sx={{ color: 'black' }}>Inicio</Button>
-              <Button color="inherit" sx={{ color: 'black' }}>Productos</Button>
-              <Button color="inherit" sx={{ color: 'black' }}>Contacto</Button>
+              <Button sx={{ color: 'text.primary', textTransform: 'none' }}>Inicio</Button>
+              <Button sx={{ color: 'text.primary', textTransform: 'none' }}>Productos</Button>
+              <Button sx={{ color: 'text.primary', textTransform: 'none' }}>Contacto</Button>
             </Stack>
 
-            {/* Right Section */}
-            <Stack direction="row" spacing={2}>
-              <IconButton color="inherit" sx={{ color: 'black' }}>
-                <ShoppingCartIcon />
-              </IconButton>
-              <Button 
-                variant="contained" 
-                sx={{ 
-                  backgroundColor: 'primary.main',
-                  '&:hover': {
-                    backgroundColor: 'primary.dark',
-                  }
-                }}
-              >
-                Login
-              </Button>
-            </Stack>
+            {/* Cart Icon */}
+            <IconButton color="inherit" sx={{ color: 'text.primary' }}>
+              <ShoppingCartIcon />
+            </IconButton>
           </Toolbar>
-        </AppBar>
+        </Container>
+      </AppBar>
 
-        <Box component="main" sx={{ gridRow: 2 }}>
-          <Box 
-            sx={{ 
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-              gap: 2,
-              width: '100%',
-              minHeight: 400
-            }}
-          >
-            {/* Left Paper - Featured Product */}
-            <Paper 
-              elevation={3} 
-              sx={{
-                p: 2,
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2
-              }}
-            >
-              <Box sx={{ position: 'relative', flexGrow: 1, minHeight: 300 }}>
-                <Image
-                  src="/product1.jpg"
-                  alt="Producto Principal"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-              </Box>
-              <Typography variant="h6">Producto Destacado</Typography>
-              <Typography variant="body2">Descripción del producto destacado</Typography>
-              <Typography variant="h6" color="primary">S/. 299.99</Typography>
-              <Button
-                variant="contained"
-                startIcon={<ShoppingCartIcon />}
-                fullWidth
-              >
-                Añadir al Carrito
-              </Button>
-            </Paper>
-
-            {/* Right Column */}
-            <Stack spacing={2}>
-              {/* Top Right Paper */}
-              <Paper 
-                elevation={3} 
-                sx={{
-                  p: 2,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 2
-                }}
-              >
-                <Box sx={{ position: 'relative', height: 200 }}>
-                  <Image
-                    src="/product2.jpg"
-                    alt="Producto 2"
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
-                </Box>
-                <Typography variant="h6">Producto 2</Typography>
-                <Typography variant="body2">Descripción breve del producto</Typography>
-                <Typography variant="h6" color="primary">S/. {199.99 + 2 * 50}</Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<ShoppingCartIcon />}
-                  fullWidth
-                >
-                  Añadir al Carrito
-                </Button>
-              </Paper>
-
-              {/* Bottom Right Paper */}
-              <Paper 
-                elevation={3} 
-                sx={{
-                  p: 2,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 2
-                }}
-              >
-                <Box sx={{ position: 'relative', height: 200 }}>
-                  <Image
-                    src="/product3.jpg"
-                    alt="Producto 3"
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
-                </Box>
-                <Typography variant="h6">Producto 3</Typography>
-                <Typography variant="body2">Descripción breve del producto</Typography>
-                <Typography variant="h6" color="primary">S/. {199.99 + 3 * 50}</Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<ShoppingCartIcon />}
-                  fullWidth
-                >
-                  Añadir al Carrito
-                </Button>
-              </Paper>
-            </Stack>
-
-            {/* Modified Carousel Section */}
-            <Box
-              sx={{
-                mt: 4,
-                width: '100%',
-                position: 'relative',
-                minHeight: 300,
-                overflow: 'hidden',
-                gridColumn: '1 / -1', // Asegura que ocupe todo el ancho
-              }}
-            >
-              <Typography variant="h5" gutterBottom>
-                Productos Destacados
-              </Typography>
-              
-              <Box sx={{ position: 'relative' }}>
-                <Slider
-                  ref={sliderRef}
-                  dots={true}
-                  infinite={true}
-                  speed={500}
-                  slidesToShow={3}
-                  slidesToScroll={1}
-                  autoplay={true}
-                  autoplaySpeed={3000}
-                  responsive={[
-                    {
-                      breakpoint: 1024,
-                      settings: {
-                        slidesToShow: 2,
-                      }
-                    },
-                    {
-                      breakpoint: 600,
-                      settings: {
-                        slidesToShow: 1,
-                      }
+      {/* Main Content */}
+      <Container 
+        component="main" 
+        maxWidth="xl" 
+        sx={{ 
+          flex: 1,
+          py: 8,
+          px: { xs: 2, sm: 4 }
+        }}
+      >
+        {/* Featured Section */}
+        <Box sx={{ mb: 8 }}>
+          <Typography variant="h4" sx={{ mb: 4, fontWeight: 600 }}>
+            Featured Products
+          </Typography>
+          <Grid container spacing={4}>
+            {[1, 2, 3, 4].map((item) => (
+              <Grid item xs={12} sm={6} md={3} key={item}>
+                <Paper 
+                  elevation={0} 
+                  sx={{ 
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      transform: 'scale(1.02)'
                     }
-                  ]}
+                  }}
                 >
-                  {[1, 2, 3, 4, 5].map((item) => (
-                    <Box key={item} sx={{ px: 1 }}>
-                      <Paper
-                        elevation={2}
-                        sx={{
-                          p: 2,
-                          height: '100%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: 2
+                  <Box sx={{ 
+                    position: 'relative', 
+                    paddingTop: '100%',
+                    backgroundColor: 'grey.100'
+                  }}>
+                    <Image
+                      src={`/product${item}.jpg`}
+                      alt={`Product ${item}`}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </Box>
+                  <Box sx={{ p: 2 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 1 }}>
+                      Product {item}
+                    </Typography>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center'
+                    }}>
+                      <Typography 
+                        variant="h6" 
+                        sx={{ 
+                          fontWeight: 600,
+                          color: 'primary.main'
                         }}
                       >
-                        <Box sx={{ position: 'relative', height: 200 }}>
-                          <Image
-                            src={`/carousel${item}.jpg`}
-                            alt={`Producto ${item}`}
-                            fill
-                            style={{ objectFit: 'cover' }}
-                          />
-                        </Box>
-                        <Typography variant="h6">Producto {item}</Typography>
-                        <Typography variant="body2">
-                          Descripción breve del producto {item}
-                        </Typography>
-                      </Paper>
+                        S/. {(199.99 + item * 50).toFixed(2)}
+                      </Typography>
+                      <IconButton 
+                        color="primary"
+                        sx={{ 
+                          '&:hover': {
+                            backgroundColor: 'primary.main',
+                            color: 'white'
+                          }
+                        }}
+                      >
+                        <AddShoppingCartIcon />
+                      </IconButton>
                     </Box>
-                  ))}
-                </Slider>
-
-                {/* Navigation Buttons */}
-                <IconButton
-                  onClick={previous}
-                  sx={{
-                    position: 'absolute',
-                    left: { xs: 8, md: 16 },  // Changed from -16/-32 to positive values
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    bgcolor: 'background.paper',
-                    '&:hover': { bgcolor: 'grey.100' },
-                    zIndex: 1,
-                    boxShadow: 1
-                  }}
-                >
-                  <ArrowBackIosIcon />
-                </IconButton>
-
-                <IconButton
-                  onClick={next}
-                  sx={{
-                    position: 'absolute',
-                    right: 0,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    bgcolor: 'background.paper',
-                    '&:hover': { bgcolor: 'grey.100' },
-                    zIndex: 1,
-                    boxShadow: 1
-                  }}
-                >
-                  <ArrowForwardIosIcon />
-                </IconButton>
-              </Box>
-            </Box>
-
-            {/* Links and Social Media Section */}
-            <Box
-              sx={{
-                gridColumn: '1 / -1',
-                bgcolor: 'grey.100',
-                p: 4,
-                mt: 4,
-                borderRadius: 2,
-              }}
-            >
-              <Stack
-                direction={{ xs: 'column', md: 'row' }}
-                justifyContent="space-between"
-                alignItems={{ xs: 'center', md: 'flex-start' }}
-                spacing={3}
-              >
-                {/* Links */}
-                <Stack
-                  direction={{ xs: 'column', sm: 'row' }}
-                  spacing={3}
-                  alignItems="center"
-                >
-                  <Button color="inherit" sx={{ color: 'text.secondary' }}>
-                    Privacy Policy
-                  </Button>
-                  <Button color="inherit" sx={{ color: 'text.secondary' }}>
-                    Terms & Conditions
-                  </Button>
-                  <Button color="inherit" sx={{ color: 'text.secondary' }}>
-                    Support
-                  </Button>
-                  <Button color="inherit" sx={{ color: 'text.secondary' }}>
-                    Contact
-                  </Button>
-                </Stack>
-
-                {/* Social Media Icons */}
-                <Stack direction="row" spacing={2}>
-                  <IconButton
-                    href="https://facebook.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{ color: 'text.secondary' }}
-                  >
-                    <FacebookIcon />
-                  </IconButton>
-                  <IconButton
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{ color: 'text.secondary' }}
-                  >
-                    <InstagramIcon />
-                  </IconButton>
-                  <IconButton
-                    href="https://x.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{ color: 'text.secondary' }}
-                  >
-                    <XIcon />
-                  </IconButton>
-                </Stack>
-              </Stack>
-
-              {/* Company Footer */}
-              <Box sx={{ 
-                mt: 3, 
-                pt: 2, 
-                borderTop: 1, 
-                borderColor: 'divider',
-                display: 'flex', 
-                justifyContent: 'center' 
-              }}>
-                <Typography variant="body2" color="text.secondary">
-                  Created by @ec-home automation peru sac.
-                </Typography>
-              </Box>
-            </Box>
-
-          </Box>
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
         </Box>
+
+        {/* New Arrivals Section */}
+        <Box>
+          <Typography variant="h4" sx={{ mb: 4, fontWeight: 600 }}>
+            New Arrivals
+          </Typography>
+          <Grid container spacing={4}>
+            {[5, 6, 7, 8].map((item) => (
+              <Grid item xs={12} sm={6} md={3} key={item}>
+                <Paper 
+                  elevation={0} 
+                  sx={{ 
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      transform: 'scale(1.02)'
+                    }
+                  }}
+                >
+                  <Box sx={{ 
+                    position: 'relative', 
+                    paddingTop: '100%',
+                    backgroundColor: 'grey.100'
+                  }}>
+                    <Image
+                      src={`/product${item}.jpg`}
+                      alt={`Product ${item}`}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </Box>
+                  <Box sx={{ p: 2 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 1 }}>
+                      Product {item}
+                    </Typography>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center'
+                    }}>
+                      <Typography 
+                        variant="h6" 
+                        sx={{ 
+                          fontWeight: 600,
+                          color: 'primary.main'
+                        }}
+                      >
+                        S/. {(199.99 + item * 50).toFixed(2)}
+                      </Typography>
+                      <IconButton 
+                        color="primary"
+                        sx={{ 
+                          '&:hover': {
+                            backgroundColor: 'primary.main',
+                            color: 'white'
+                          }
+                        }}
+                      >
+                        <AddShoppingCartIcon />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      </Container>
+
+      {/* Footer */}
+      <Box 
+        component="footer" 
+        sx={{
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'grey.50',
+          py: 6,
+          mt: 'auto'
+        }}
+      >
+        <Container maxWidth="xl">
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={4}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                About Us
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                EC-HOME AUTOMATION PERU SAC specializes in home automation solutions.
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Quick Links
+              </Typography>
+              <Stack spacing={1}>
+                <Button sx={{ color: 'text.secondary', justifyContent: 'flex-start', textTransform: 'none' }}>
+                  Privacy Policy
+                </Button>
+                <Button sx={{ color: 'text.secondary', justifyContent: 'flex-start', textTransform: 'none' }}>
+                  Terms & Conditions
+                </Button>
+                <Button sx={{ color: 'text.secondary', justifyContent: 'flex-start', textTransform: 'none' }}>
+                  Contact Us
+                </Button>
+              </Stack>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Follow Us
+              </Typography>
+              <Stack direction="row" spacing={2}>
+                <IconButton sx={{ color: 'text.secondary' }}>
+                  <FacebookIcon />
+                </IconButton>
+                <IconButton sx={{ color: 'text.secondary' }}>
+                  <InstagramIcon />
+                </IconButton>
+                <IconButton sx={{ color: 'text.secondary' }}>
+                  <XIcon />
+                </IconButton>
+              </Stack>
+            </Grid>
+          </Grid>
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            align="center" 
+            sx={{ mt: 4, pt: 4, borderTop: '1px solid', borderColor: 'divider' }}
+          >
+            © 2024 EC-HOME AUTOMATION PERU SAC. All rights reserved.
+          </Typography>
+        </Container>
       </Box>
-    </Container>
+    </Box>
   );
 }
