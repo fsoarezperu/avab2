@@ -58,7 +58,7 @@ export default function Sidebar({ setCurrentView }: SidebarProps) {
 
           <Button
             startIcon={<PeopleIcon />}
-            onClick={() => setCurrentView('addCustomer')}
+            onClick={() => setCurrentView('customers')}
             sx={{ 
               color: 'white',
               justifyContent: 'flex-start',

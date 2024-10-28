@@ -4,7 +4,10 @@ import { useState } from 'react';
 import { useSession, signOut } from "next-auth/react";
 import {
   Container, Box, Typography, Grid, Paper, Stack, Button, AppBar, Toolbar, Avatar,
-  TextField, FormControl, InputLabel, Select, MenuItem, Divider
+  TextField, FormControl, InputLabel, Select, MenuItem, Divider,
+  Table, TableBody, TableCell, TableContainer, TableHead, 
+  TableRow, Chip, IconButton, InputAdornment,
+  Menu
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -12,6 +15,10 @@ import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import LogoutIcon from '@mui/icons-material/Logout';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -27,6 +34,27 @@ export default function Dashboard() {
     storeCredit: '',
     status: 'active'
   });
+  const [customers] = useState([
+    {
+      id: '1001',
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      dateCreated: '2024-02-20',
+      orders: 5,
+      totalSpent: 'S/. 599.99',
+      status: 'Active'
+    },
+    {
+      id: '1002',
+      name: 'Jane Smith',
+      email: 'jane.smith@example.com',
+      dateCreated: '2024-02-19',
+      orders: 3,
+      totalSpent: 'S/. 299.50',
+      status: 'Inactive'
+    },
+    // Añade más clientes de ejemplo aquí
+  ]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,6 +205,103 @@ export default function Dashboard() {
             </form>
           </Paper>
         );
+      case 'customers':
+        return (
+          <Paper sx={{ p: 4 }}>
+            {/* Header */}
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              mb: 3 
+            }}>
+              <Typography variant="h5">
+                Customers
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<FilterListIcon />}
+                >
+                  Filter
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<PersonAddIcon />}
+                  onClick={() => setCurrentView('addCustomer')}
+                >
+                  Add Customer
+                </Button>
+              </Box>
+            </Box>
+
+            {/* Search and Filters */}
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                placeholder="Search customers by name, email, or phone..."
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+                size="small"
+              />
+            </Box>
+
+            {/* Customers Table */}
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Date Created</TableCell>
+                    <TableCell>Orders</TableCell>
+                    <TableCell>Total Spent</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {customers.map((customer) => (
+                    <TableRow key={customer.id} hover>
+                      <TableCell>{customer.name}</TableCell>
+                      <TableCell>{customer.email}</TableCell>
+                      <TableCell>{customer.dateCreated}</TableCell>
+                      <TableCell>{customer.orders}</TableCell>
+                      <TableCell>{customer.totalSpent}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={customer.status}
+                          color={customer.status === 'Active' ? 'success' : 'default'}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        <IconButton size="small">
+                          <MoreVertIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Pagination */}
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              mt: 3 
+            }}>
+              {/* Add your pagination component here */}
+            </Box>
+          </Paper>
+        );
       default:
         return (
           <Grid container spacing={3}>
@@ -289,7 +414,7 @@ export default function Dashboard() {
             </Button>
             <Button
               startIcon={<PeopleIcon />}
-              onClick={() => setCurrentView('addCustomer')}
+              onClick={() => setCurrentView('customers')}
               sx={{ 
                 color: 'white',
                 justifyContent: 'flex-start',
@@ -297,7 +422,7 @@ export default function Dashboard() {
                 py: 1
               }}
             >
-              Add Customer
+              Customers
             </Button>
             <Button
               startIcon={<ShoppingCartIcon />}
