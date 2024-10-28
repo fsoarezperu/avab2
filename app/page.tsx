@@ -9,6 +9,9 @@ import "slick-carousel/slick/slick-theme.css";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useRef } from 'react';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import XIcon from '@mui/icons-material/X';
 
 export default function Home() {
   const sliderRef = useRef<Slider>(null);
@@ -255,7 +258,7 @@ export default function Home() {
                   onClick={previous}
                   sx={{
                     position: 'absolute',
-                    left: { xs: -16, md: -32 },  // Added missing closing brace
+                    left: { xs: 8, md: 16 },  // Changed from -16/-32 to positive values
                     top: '50%',
                     transform: 'translateY(-50%)',
                     bgcolor: 'background.paper',
@@ -284,21 +287,88 @@ export default function Home() {
                 </IconButton>
               </Box>
             </Box>
-          </Box>
-        </Box>
 
-        <Box 
-          component="footer" 
-          sx={{ 
-            gridRow: 3,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}
-        >
-          <Typography variant="body2">
-            Created by @ec-home automation peru sac.
-          </Typography>
+            {/* Links and Social Media Section */}
+            <Box
+              sx={{
+                gridColumn: '1 / -1',
+                bgcolor: 'grey.100',
+                p: 4,
+                mt: 4,
+                borderRadius: 2,
+              }}
+            >
+              <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                justifyContent="space-between"
+                alignItems={{ xs: 'center', md: 'flex-start' }}
+                spacing={3}
+              >
+                {/* Links */}
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={3}
+                  alignItems="center"
+                >
+                  <Button color="inherit" sx={{ color: 'text.secondary' }}>
+                    Privacy Policy
+                  </Button>
+                  <Button color="inherit" sx={{ color: 'text.secondary' }}>
+                    Terms & Conditions
+                  </Button>
+                  <Button color="inherit" sx={{ color: 'text.secondary' }}>
+                    Support
+                  </Button>
+                  <Button color="inherit" sx={{ color: 'text.secondary' }}>
+                    Contact
+                  </Button>
+                </Stack>
+
+                {/* Social Media Icons */}
+                <Stack direction="row" spacing={2}>
+                  <IconButton
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{ color: 'text.secondary' }}
+                  >
+                    <FacebookIcon />
+                  </IconButton>
+                  <IconButton
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{ color: 'text.secondary' }}
+                  >
+                    <InstagramIcon />
+                  </IconButton>
+                  <IconButton
+                    href="https://x.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{ color: 'text.secondary' }}
+                  >
+                    <XIcon />
+                  </IconButton>
+                </Stack>
+              </Stack>
+
+              {/* Company Footer */}
+              <Box sx={{ 
+                mt: 3, 
+                pt: 2, 
+                borderTop: 1, 
+                borderColor: 'divider',
+                display: 'flex', 
+                justifyContent: 'center' 
+              }}>
+                <Typography variant="body2" color="text.secondary">
+                  Created by @ec-home automation peru sac.
+                </Typography>
+              </Box>
+            </Box>
+
+          </Box>
         </Box>
       </Box>
     </Container>
