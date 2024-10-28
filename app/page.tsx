@@ -91,6 +91,17 @@ export default function Home() {
                     }}
                   />
 
+                  <Button
+                    onClick={() => signIn('google')}
+                    variant="contained"
+                    color="primary"
+                    sx={{
+                      textTransform: 'none',
+                    }}
+                  >
+                    Ir al Dashboard
+                  </Button>
+
                   {/* Botón de cerrar sesión */}
                   <Button
                     onClick={() => signOut()}

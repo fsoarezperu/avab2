@@ -1,5 +1,5 @@
-import NextAuth from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
+import NextAuth from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
 
 const handler = NextAuth({
   providers: [
@@ -8,7 +8,12 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
-})
+  callbacks: {
+    async redirect({ url, baseUrl }) {
+      // Redirige al dashboard después del login exitoso
+      return '/dashboard'
+    }
+  }
+});
 
-export { handler as GET, handler as POST } 
+export { handler as GET, handler as POST }; 
