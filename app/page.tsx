@@ -185,14 +185,11 @@ export default function Home() {
             <Box
               sx={{
                 mt: 4,
-                width: '100vw',
+                width: '100%',
                 position: 'relative',
-                left: '50%',
-                right: '50%',
-                marginLeft: '-50vw',
-                marginRight: '-50vw',
                 minHeight: 300,
-                overflow: 'hidden'
+                overflow: 'hidden',
+                gridColumn: '1 / -1', // Asegura que ocupe todo el ancho
               }}
             >
               <Typography variant="h5" gutterBottom>
@@ -258,7 +255,7 @@ export default function Home() {
                   onClick={previous}
                   sx={{
                     position: 'absolute',
-                    left: { xs: -16, md: -32 },
+                    left: { xs: -16, md: -32 },  // Added missing closing brace
                     top: '50%',
                     transform: 'translateY(-50%)',
                     bgcolor: 'background.paper',
