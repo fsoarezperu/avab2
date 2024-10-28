@@ -13,8 +13,12 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import XIcon from '@mui/icons-material/X';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import { useSession, signIn, signOut } from "next-auth/react"
+import styles from './page.module.css'
 
 export default function Home() {
+  const { data: session } = useSession()
+
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
@@ -49,10 +53,83 @@ export default function Home() {
               <Button sx={{ color: 'text.primary', textTransform: 'none' }}>Contacto</Button>
             </Stack>
 
-            {/* Cart Icon */}
-            <IconButton color="inherit" sx={{ color: 'text.primary' }}>
-              <ShoppingCartIcon />
-            </IconButton>
+            {/* Cart and Login */}
+            <Stack direction="row" spacing={2} alignItems="center">
+              <IconButton color="inherit" sx={{ color: 'text.primary' }}>
+                <ShoppingCartIcon />
+              </IconButton>
+              
+              {session ? (
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 2 
+                }}>
+                  {/* Nombre del usuario */}
+                  <Typography 
+                    variant="subtitle2" 
+                    sx={{ 
+                      display: { xs: 'none', sm: 'block' },
+                      color: 'text.primary'
+                    }}
+                  >
+                    {session.user?.name}
+                  </Typography>
+
+                  {/* Imagen del usuario */}
+                  <Box
+                    component="img"
+                    src={session.user?.image || '/default-avatar.png'}
+                    alt="Profile"
+                    sx={{
+                      width: 35,
+                      height: 35,
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                      border: '2px solid',
+                      borderColor: 'primary.main'
+                    }}
+                  />
+
+                  {/* Botón de cerrar sesión */}
+                  <Button
+                    onClick={() => signOut()}
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      textTransform: 'none',
+                      borderColor: 'text.primary',
+                      color: 'text.primary',
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        color: 'primary.main',
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                      }
+                    }}
+                  >
+                    Cerrar Sesión
+                  </Button>
+                </Box>
+              ) : (
+                <Button
+                  onClick={() => signIn()}
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    textTransform: 'none',
+                    borderColor: 'text.primary',
+                    color: 'text.primary',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      color: 'primary.main',
+                      backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                    }
+                  }}
+                >
+                  Iniciar Sesión
+                </Button>
+              )}
+            </Stack>
           </Toolbar>
         </Container>
       </AppBar>
