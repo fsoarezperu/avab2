@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  TablePagination,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -64,6 +65,13 @@ interface Order {
   status: string;
   paymentStatus: string;
 }
+
+interface PaginationState {
+  page: number;
+  rowsPerPage: number;
+}
+
+const ROWS_PER_PAGE = 6;
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -130,6 +138,10 @@ export default function Dashboard() {
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState({ id: '', type: '' });
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 0,
+    rowsPerPage: ROWS_PER_PAGE
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -214,6 +226,10 @@ export default function Dashboard() {
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  const handlePageChange = (event: unknown, newPage: number) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
+  };
 
   const renderMainContent = () => {
     switch(currentView) {
@@ -529,33 +545,38 @@ export default function Dashboard() {
                       <TableCell colSpan={6} align="center">No products found</TableCell>
                     </TableRow>
                   ) : (
-                    products.map((product) => (
-                      <TableRow key={product.id} hover>
-                        <TableCell>{product.name}</TableCell>
-                        <TableCell>{product.description}</TableCell>
-                        <TableCell>
-                          S/. {typeof product.price === 'number' 
-                            ? product.price.toFixed(2) 
-                            : parseFloat(product.price.toString()).toFixed(2)}
-                        </TableCell>
-                        <TableCell>{product.stock}</TableCell>
-                        <TableCell>
-                          <Chip
-                            label={product.stock > 0 ? 'In Stock' : 'Out of Stock'}
-                            color={product.stock > 0 ? 'success' : 'error'}
-                            size="small"
-                          />
-                        </TableCell>
-                        <TableCell align="right">
-                          <IconButton size="small" onClick={() => handleDeleteClick(product.id, 'product')}>
-                            <DeleteIcon color="error" />
-                          </IconButton>
-                          <IconButton size="small">
-                            <MoreVertIcon />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                    products
+                      .slice(
+                        pagination.page * pagination.rowsPerPage,
+                        pagination.page * pagination.rowsPerPage + pagination.rowsPerPage
+                      )
+                      .map((product) => (
+                        <TableRow key={product.id} hover>
+                          <TableCell>{product.name}</TableCell>
+                          <TableCell>{product.description}</TableCell>
+                          <TableCell>
+                            S/. {typeof product.price === 'number' 
+                              ? product.price.toFixed(2) 
+                              : parseFloat(product.price.toString()).toFixed(2)}
+                          </TableCell>
+                          <TableCell>{product.stock}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                              color={product.stock > 0 ? 'success' : 'error'}
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            <IconButton size="small" onClick={() => handleDeleteClick(product.id, 'product')}>
+                              <DeleteIcon color="error" />
+                            </IconButton>
+                            <IconButton size="small">
+                              <MoreVertIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
                   )}
                 </TableBody>
               </Table>
@@ -564,10 +585,20 @@ export default function Dashboard() {
             {/* Pagination */}
             <Box sx={{ 
               display: 'flex', 
-              justifyContent: 'center', 
+              justifyContent: 'flex-end', 
               mt: 3 
             }}>
-              {/* Add your pagination component here */}
+              <TablePagination
+                component="div"
+                count={products.length}
+                page={pagination.page}
+                onPageChange={handlePageChange}
+                rowsPerPage={pagination.rowsPerPage}
+                rowsPerPageOptions={[ROWS_PER_PAGE]}
+                labelDisplayedRows={({ from, to, count }) => 
+                  `${from}-${to} of ${count}`
+                }
+              />
             </Box>
           </Paper>
         );
