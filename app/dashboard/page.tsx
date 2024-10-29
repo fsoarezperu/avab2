@@ -7,18 +7,33 @@ import {
   TextField, FormControl, InputLabel, Select, MenuItem, Divider,
   Table, TableBody, TableCell, TableContainer, TableHead, 
   TableRow, Chip, IconButton, InputAdornment,
-  Menu
+  Menu, Accordion, AccordionSummary, AccordionDetails,
+  Switch,
+  FormControlLabel,
+  Autocomplete,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import PaymentIcon from '@mui/icons-material/Payment';
+import EmailIcon from '@mui/icons-material/Email';
+import SecurityIcon from '@mui/icons-material/Security';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -55,10 +70,106 @@ export default function Dashboard() {
     },
     // Añade más clientes de ejemplo aquí
   ]);
+  const [products] = useState([
+    {
+      id: '2001',
+      name: 'Product A',
+      sku: 'SKU001',
+      price: 'S/. 99.99',
+      stock: 50,
+      status: 'Available'
+    },
+    {
+      id: '2002',
+      name: 'Product B',
+      sku: 'SKU002',
+      price: 'S/. 149.99',
+      stock: 20,
+      status: 'Out of Stock'
+    },
+    // Add more example products here
+  ]);
+  const [orders] = useState([
+    {
+      id: '3001',
+      orderNumber: '#ORD-2024-001',
+      customer: 'John Doe',
+      date: '2024-03-15',
+      total: 'S/. 299.99',
+      status: 'Processing',
+      paymentStatus: 'Paid'
+    },
+    {
+      id: '3002',
+      orderNumber: '#ORD-2024-002',
+      customer: 'Jane Smith',
+      date: '2024-03-14',
+      total: 'S/. 149.50',
+      status: 'Delivered',
+      paymentStatus: 'Paid'
+    },
+  ]);
+  const [productData, setProductData] = useState({
+    name: '',
+    sku: '',
+    price: '',
+    description: '',
+    brand: '',
+    category: '',
+    weight: '',
+    stock: '',
+    status: 'active',
+    taxable: true,
+    visibility: 'visible'
+  });
+  const [orderData, setOrderData] = useState({
+    customer: '',
+    items: [],
+    shippingAddress: {
+      firstName: '',
+      lastName: '',
+      address1: '',
+      address2: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      country: '',
+      phone: ''
+    },
+    billingAddress: {
+      sameAsShipping: true,
+      firstName: '',
+      lastName: '',
+      address1: '',
+      address2: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      country: '',
+      phone: ''
+    },
+    shippingMethod: '',
+    paymentMethod: '',
+    notes: ''
+  });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState({ id: '', type: '' });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log(customerData);
+  };
+
+  const handleDeleteClick = (id: string, type: string) => {
+    setItemToDelete({ id, type });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    // Aquí implementarías la lógica real de eliminación
+    console.log(`Deleting ${itemToDelete.type} with id: ${itemToDelete.id}`);
+    setDeleteDialogOpen(false);
+    setItemToDelete({ id: '', type: '' });
   };
 
   const renderMainContent = () => {
@@ -227,7 +338,7 @@ export default function Dashboard() {
                 </Button>
                 <Button
                   variant="contained"
-                  startIcon={<PersonAddIcon />}
+                  startIcon={<AddIcon />}
                   onClick={() => setCurrentView('addCustomer')}
                 >
                   Add Customer
@@ -282,6 +393,9 @@ export default function Dashboard() {
                         />
                       </TableCell>
                       <TableCell align="right">
+                        <IconButton size="small" onClick={() => handleDeleteClick(customer.id, 'customer')}>
+                          <DeleteIcon color="error" />
+                        </IconButton>
                         <IconButton size="small">
                           <MoreVertIcon />
                         </IconButton>
@@ -300,6 +414,483 @@ export default function Dashboard() {
             }}>
               {/* Add your pagination component here */}
             </Box>
+          </Paper>
+        );
+      case 'products':
+        return (
+          <Paper sx={{ p: 4 }}>
+            {/* Header */}
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              mb: 3 
+            }}>
+              <Typography variant="h5">
+                Products
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<FilterListIcon />}
+                >
+                  Filter
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setCurrentView('addProduct')}
+                >
+                  Add Product
+                </Button>
+              </Box>
+            </Box>
+
+            {/* Search and Filters */}
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                placeholder="Search products by name, SKU, or price..."
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+                size="small"
+              />
+            </Box>
+
+            {/* Products Table */}
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Name</TableCell>
+                    <TableCell>SKU</TableCell>
+                    <TableCell>Price</TableCell>
+                    <TableCell>Stock</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {products.map((product) => (
+                    <TableRow key={product.id} hover>
+                      <TableCell>{product.name}</TableCell>
+                      <TableCell>{product.sku}</TableCell>
+                      <TableCell>{product.price}</TableCell>
+                      <TableCell>{product.stock}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={product.status}
+                          color={product.status === 'Available' ? 'success' : 'default'}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        <IconButton size="small" onClick={() => handleDeleteClick(product.id, 'product')}>
+                          <DeleteIcon color="error" />
+                        </IconButton>
+                        <IconButton size="small">
+                          <MoreVertIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Pagination */}
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              mt: 3 
+            }}>
+              {/* Add your pagination component here */}
+            </Box>
+          </Paper>
+        );
+      case 'orders':
+        return (
+          <Paper sx={{ p: 4 }}>
+            {/* Header */}
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              mb: 3 
+            }}>
+              <Typography variant="h5">
+                Orders
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<FilterListIcon />}
+                >
+                  Filter
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setCurrentView('createOrder')}
+                >
+                  Create Order
+                </Button>
+              </Box>
+            </Box>
+
+            {/* Search and Filters */}
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                placeholder="Search orders by order number, customer name..."
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+                size="small"
+              />
+            </Box>
+
+            {/* Orders Table */}
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Order #</TableCell>
+                    <TableCell>Date</TableCell>
+                    <TableCell>Customer</TableCell>
+                    <TableCell>Total</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Payment</TableCell>
+                    <TableCell align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {orders.map((order) => (
+                    <TableRow key={order.id} hover>
+                      <TableCell>{order.orderNumber}</TableCell>
+                      <TableCell>{order.date}</TableCell>
+                      <TableCell>{order.customer}</TableCell>
+                      <TableCell>{order.total}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={order.status}
+                          color={
+                            order.status === 'Delivered' 
+                              ? 'success' 
+                              : order.status === 'Processing' 
+                                ? 'warning' 
+                                : 'default'
+                          }
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={order.paymentStatus}
+                          color={order.paymentStatus === 'Paid' ? 'success' : 'error'}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        <IconButton size="small" onClick={() => handleDeleteClick(order.id, 'order')}>
+                          <DeleteIcon color="error" />
+                        </IconButton>
+                        <IconButton size="small">
+                          <MoreVertIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Pagination */}
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              mt: 3 
+            }}>
+              {/* Add your pagination component here */}
+            </Box>
+          </Paper>
+        );
+      case 'settings':
+        return (
+          <Paper sx={{ p: 4 }}>
+            {/* Header */}
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              mb: 3 
+            }}>
+              <Typography variant="h5">
+                Settings
+              </Typography>
+            </Box>
+
+            {/* Settings Sections */}
+            <Stack spacing={2}>
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <StorefrontIcon />
+                    <Typography variant="h6">Store Setup</Typography>
+                  </Box>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Stack spacing={2}>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>Store Profile</Button>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>Store Settings</Button>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>Tax Settings</Button>
+                  </Stack>
+                </AccordionDetails>
+              </Accordion>
+
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <PaymentIcon />
+                    <Typography variant="h6">Payments</Typography>
+                  </Box>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Stack spacing={2}>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>Payment Methods</Button>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>Currency Settings</Button>
+                  </Stack>
+                </AccordionDetails>
+              </Accordion>
+
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <LocalShippingIcon />
+                    <Typography variant="h6">Shipping</Typography>
+                  </Box>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Stack spacing={2}>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>Shipping Zones</Button>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>Shipping Methods</Button>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>Shipping Labels</Button>
+                  </Stack>
+                </AccordionDetails>
+              </Accordion>
+
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <EmailIcon />
+                    <Typography variant="h6">Notifications</Typography>
+                  </Box>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Stack spacing={2}>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>Email Templates</Button>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>Notification Settings</Button>
+                  </Stack>
+                </AccordionDetails>
+              </Accordion>
+
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <SecurityIcon />
+                    <Typography variant="h6">Security</Typography>
+                  </Box>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Stack spacing={2}>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>User Accounts</Button>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>API Settings</Button>
+                    <Button variant="text" sx={{ justifyContent: 'flex-start' }}>SSL Settings</Button>
+                  </Stack>
+                </AccordionDetails>
+              </Accordion>
+            </Stack>
+          </Paper>
+        );
+      case 'addProduct':
+        return (
+          <Paper sx={{ p: 4 }}>
+            <Typography variant="h5" sx={{ mb: 4 }}>
+              Add a Product
+            </Typography>
+
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={3}>
+                {/* Basic Information */}
+                <Grid item xs={12}>
+                  <Typography variant="h6" sx={{ mb: 2 }}>
+                    Basic Information
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    required
+                    label="Product Name"
+                    value={productData.name}
+                    onChange={(e) => setProductData({...productData, name: e.target.value})}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={4}
+                    label="Description"
+                    value={productData.description}
+                    onChange={(e) => setProductData({...productData, description: e.target.value})}
+                  />
+                </Grid>
+
+                {/* Pricing & Inventory */}
+                <Grid item xs={12}>
+                  <Typography variant="h6" sx={{ mb: 2, mt: 2 }}>
+                    Pricing & Inventory
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    required
+                    label="SKU"
+                    value={productData.sku}
+                    onChange={(e) => setProductData({...productData, sku: e.target.value})}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    required
+                    label="Price"
+                    type="number"
+                    value={productData.price}
+                    onChange={(e) => setProductData({...productData, price: e.target.value})}
+                    InputProps={{
+                      startAdornment: <Typography>S/.</Typography>,
+                    }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Stock"
+                    type="number"
+                    value={productData.stock}
+                    onChange={(e) => setProductData({...productData, stock: e.target.value})}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Weight (kg)"
+                    type="number"
+                    value={productData.weight}
+                    onChange={(e) => setProductData({...productData, weight: e.target.value})}
+                  />
+                </Grid>
+
+                {/* Categories & Brand */}
+                <Grid item xs={12}>
+                  <Typography variant="h6" sx={{ mb: 2, mt: 2 }}>
+                    Categories & Brand
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Category</InputLabel>
+                    <Select
+                      value={productData.category}
+                      label="Category"
+                      onChange={(e) => setProductData({...productData, category: e.target.value})}
+                    >
+                      <MenuItem value="electronics">Electronics</MenuItem>
+                      <MenuItem value="clothing">Clothing</MenuItem>
+                      <MenuItem value="accessories">Accessories</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Divider sx={{ my: 2 }} />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                    <Button
+                      variant="outlined"
+                      color="inherit"
+                      onClick={() => setCurrentView('dashboard')}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                    >
+                      Save Product
+                    </Button>
+                  </Box>
+                </Grid>
+              </Grid>
+            </form>
+          </Paper>
+        );
+      case 'createOrder':
+        return (
+          <Paper sx={{ p: 4 }}>
+            <Typography variant="h5" sx={{ mb: 4 }}>
+              Create Order
+            </Typography>
+
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={3}>
+                {/* Customer Selection */}
+                <Grid item xs={12}>
+                  <Typography variant="h6" sx={{ mb: 2 }}>
+                    Customer
+                  </Typography>
+                  <Autocomplete
+                    fullWidth
+                    options={customers}
+                    getOptionLabel={(option) => `${option.name} (${option.email})`}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Search Customer"
+                        required
+                      />
+                    )}
+                    onChange={(event, newValue) => {
+                      setOrderData({...orderData, customer: newValue?.id || ''});
+                    }}
+                  />
+                </Grid>
+              </Grid>
+            </form>
           </Paper>
         );
       default:
@@ -382,7 +973,7 @@ export default function Dashboard() {
         </Toolbar>
       </AppBar>
 
-      {/* Sidebar - Ajusta el margen superior para el nuevo navbar */}
+      {/* Sidebar */}
       <Box
         sx={{
           width: 240,
@@ -391,14 +982,10 @@ export default function Dashboard() {
           height: '100vh',
           color: 'white',
           p: 2,
-          pt: 8 // Añade padding top para el navbar
+          pt: 8
         }}
       >
         <Stack spacing={3}>
-          <Typography variant="h6" sx={{ p: 2 }}>
-            Store Dashboard
-          </Typography>
-          
           <Stack spacing={1}>
             <Button
               startIcon={<DashboardIcon />}
@@ -413,6 +1000,18 @@ export default function Dashboard() {
               Dashboard
             </Button>
             <Button
+              startIcon={<ShoppingCartIcon />}
+              onClick={() => setCurrentView('products')}
+              sx={{ 
+                color: 'white',
+                justifyContent: 'flex-start',
+                textTransform: 'none',
+                py: 1
+              }}
+            >
+              Products
+            </Button>
+            <Button
               startIcon={<PeopleIcon />}
               onClick={() => setCurrentView('customers')}
               sx={{ 
@@ -425,7 +1024,8 @@ export default function Dashboard() {
               Customers
             </Button>
             <Button
-              startIcon={<ShoppingCartIcon />}
+              startIcon={<LocalShippingIcon />}
+              onClick={() => setCurrentView('orders')}
               sx={{ 
                 color: 'white',
                 justifyContent: 'flex-start',
@@ -436,18 +1036,8 @@ export default function Dashboard() {
               Orders
             </Button>
             <Button
-              startIcon={<AnalyticsIcon />}
-              sx={{ 
-                color: 'white',
-                justifyContent: 'flex-start',
-                textTransform: 'none',
-                py: 1
-              }}
-            >
-              Analytics
-            </Button>
-            <Button
               startIcon={<SettingsIcon />}
+              onClick={() => setCurrentView('settings')}
               sx={{ 
                 color: 'white',
                 justifyContent: 'flex-start',
@@ -471,6 +1061,33 @@ export default function Dashboard() {
           {renderMainContent()}
         </Container>
       </Box>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <DeleteIcon color="error" />
+          Confirm Deletion
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this {itemToDelete.type}? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteConfirm} 
+            color="error" 
+            variant="contained"
+            startIcon={<DeleteIcon />}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 } 
