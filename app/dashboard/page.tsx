@@ -157,6 +157,12 @@ export default function Dashboard() {
     message: '',
     severity: 'success' as 'success' | 'error'
   });
+  const [dashboardStats, setDashboardStats] = useState({
+    totalOrders: 0,
+    totalSales: 0,
+    activeCustomers: 0,
+    totalProducts: 0
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -269,6 +275,17 @@ export default function Dashboard() {
     }
   };
 
+  const fetchDashboardStats = async () => {
+    try {
+      const response = await fetch('/api/dashboard/stats');
+      if (!response.ok) throw new Error('Error fetching stats');
+      const data = await response.json();
+      setDashboardStats(data);
+    } catch (error) {
+      console.error('Error loading dashboard stats:', error);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -279,6 +296,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchOrders();
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardStats();
   }, []);
 
   const handleProductsPageChange = (event: unknown, newPage: number) => {
@@ -1098,10 +1119,14 @@ export default function Dashboard() {
           <Grid container spacing={3}>
             {/* Stats cards */}
             {[
-              { title: 'Total Orders', value: '156', color: '#1976d2' },
-              { title: 'Total Sales', value: 'S/. 15,690', color: '#2e7d32' },
-              { title: 'Active Customers', value: '89', color: '#ed6c02' },
-              { title: 'Products', value: '234', color: '#9c27b0' }
+              { title: 'Total Orders', value: String(dashboardStats.totalOrders), color: '#1976d2' },
+              { 
+                title: 'Total Sales', 
+                value: `S/. ${Number(dashboardStats.totalSales || 0).toFixed(2)}`, 
+                color: '#2e7d32' 
+              },
+              { title: 'Active Customers', value: String(dashboardStats.activeCustomers), color: '#ed6c02' },
+              { title: 'Products', value: String(dashboardStats.totalProducts), color: '#9c27b0' }
             ].map((stat, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Paper
