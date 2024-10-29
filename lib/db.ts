@@ -1,8 +1,10 @@
-import prisma from './prisma'
+import { PrismaClient } from '@prisma/client'
+
+export const db = new PrismaClient()
 
 export async function getProducts() {
   try {
-    const products = await prisma.product.findMany({
+    const products = await db.product.findMany({
       orderBy: {
         createdAt: 'desc',
       },
@@ -16,7 +18,7 @@ export async function getProducts() {
 
 export async function getProduct(id: string) {
   try {
-    const product = await prisma.product.findUnique({
+    const product = await db.product.findUnique({
       where: { id },
     })
     return product

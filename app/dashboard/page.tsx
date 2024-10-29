@@ -44,6 +44,17 @@ interface Product {
   updatedAt: string;
 }
 
+interface Customer {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  dateCreated: string;
+  orders: number;
+  totalSpent: string;
+  status: string;
+}
+
 export default function Dashboard() {
   const { data: session } = useSession();
   const [currentView, setCurrentView] = useState('dashboard');
@@ -58,27 +69,8 @@ export default function Dashboard() {
     storeCredit: '',
     status: 'active'
   });
-  const [customers] = useState([
-    {
-      id: '1001',
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      dateCreated: '2024-02-20',
-      orders: 5,
-      totalSpent: 'S/. 599.99',
-      status: 'Active'
-    },
-    {
-      id: '1002',
-      name: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      dateCreated: '2024-02-19',
-      orders: 3,
-      totalSpent: 'S/. 299.50',
-      status: 'Inactive'
-    },
-    // Añade más clientes de ejemplo aquí
-  ]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loadingCustomers, setLoadingCustomers] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [orders] = useState([
@@ -157,11 +149,27 @@ export default function Dashboard() {
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    // Aquí implementarías la lógica real de eliminación
-    console.log(`Deleting ${itemToDelete.type} with id: ${itemToDelete.id}`);
-    setDeleteDialogOpen(false);
-    setItemToDelete({ id: '', type: '' });
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await fetch(`/api/${itemToDelete.type}s/${itemToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Error deleting record');
+
+      // Actualizar el estado según el tipo
+      if (itemToDelete.type === 'customer') {
+        setCustomers(customers.filter(customer => customer.id !== itemToDelete.id));
+      } else if (itemToDelete.type === 'product') {
+        setProducts(products.filter(product => product.id !== itemToDelete.id));
+      }
+
+      setDeleteDialogOpen(false);
+      setItemToDelete({ id: '', type: '' });
+    } catch (error) {
+      console.error('Error:', error);
+      // Aquí podrías agregar un mensaje de error para el usuario
+    }
   };
 
   const fetchProducts = async () => {
@@ -177,8 +185,25 @@ export default function Dashboard() {
     }
   };
 
+  const fetchCustomers = async () => {
+    try {
+      const response = await fetch('/api/customers');
+      if (!response.ok) throw new Error('Error fetching customers');
+      const data = await response.json();
+      setCustomers(data);
+    } catch (error) {
+      console.error('Error loading customers:', error);
+    } finally {
+      setLoadingCustomers(false);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    fetchCustomers();
   }, []);
 
   const renderMainContent = () => {
@@ -389,7 +414,7 @@ export default function Dashboard() {
                 <TableBody>
                   {customers.map((customer) => (
                     <TableRow key={customer.id} hover>
-                      <TableCell>{customer.name}</TableCell>
+                      <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
                       <TableCell>{customer.email}</TableCell>
                       <TableCell>{customer.dateCreated}</TableCell>
                       <TableCell>{customer.orders}</TableCell>
