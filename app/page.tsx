@@ -1,20 +1,13 @@
-'use client';  // Add this at the top of the file
+'use client';
 
 import { Container, Box, Typography, Stack, Paper, AppBar, Toolbar, Button, IconButton, Grid } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Image from 'next/image';
-import Slider from 'react-slick';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import { useRef } from 'react';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import XIcon from '@mui/icons-material/X';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { useSession, signIn, signOut } from "next-auth/react"
-import styles from './page.module.css'
 
 export default function Home() {
   const { data: session } = useSession()
