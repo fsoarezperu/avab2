@@ -15,6 +15,8 @@ import {
   DialogContentText,
   DialogTitle,
   TablePagination,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -138,9 +140,22 @@ export default function Dashboard() {
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState({ id: '', type: '' });
-  const [pagination, setPagination] = useState<PaginationState>({
+  const [productsPagination, setProductsPagination] = useState<PaginationState>({
     page: 0,
     rowsPerPage: ROWS_PER_PAGE
+  });
+  const [customersPagination, setCustomersPagination] = useState<PaginationState>({
+    page: 0,
+    rowsPerPage: ROWS_PER_PAGE
+  });
+  const [ordersPagination, setOrdersPagination] = useState<PaginationState>({
+    page: 0,
+    rowsPerPage: ROWS_PER_PAGE
+  });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error'
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -163,16 +178,55 @@ export default function Dashboard() {
 
       // Actualizar el estado según el tipo
       if (itemToDelete.type === 'customer') {
-        setCustomers(customers.filter(customer => customer.id !== itemToDelete.id));
+        setCustomers(prevCustomers => 
+          prevCustomers.filter(customer => customer.id !== itemToDelete.id)
+        );
+        // Reset pagination if current page becomes empty
+        const remainingItems = customers.length - 1;
+        const currentPage = customersPagination.page;
+        const itemsPerPage = customersPagination.rowsPerPage;
+        if (remainingItems > 0 && remainingItems <= currentPage * itemsPerPage) {
+          setCustomersPagination(prev => ({ ...prev, page: currentPage - 1 }));
+        }
       } else if (itemToDelete.type === 'product') {
-        setProducts(products.filter(product => product.id !== itemToDelete.id));
+        setProducts(prevProducts => 
+          prevProducts.filter(product => product.id !== itemToDelete.id)
+        );
+        // Reset pagination if current page becomes empty
+        const remainingItems = products.length - 1;
+        const currentPage = productsPagination.page;
+        const itemsPerPage = productsPagination.rowsPerPage;
+        if (remainingItems > 0 && remainingItems <= currentPage * itemsPerPage) {
+          setProductsPagination(prev => ({ ...prev, page: currentPage - 1 }));
+        }
+      } else if (itemToDelete.type === 'order') {
+        setOrders(prevOrders => 
+          prevOrders.filter(order => order.id !== itemToDelete.id)
+        );
+        // Reset pagination if current page becomes empty
+        const remainingItems = orders.length - 1;
+        const currentPage = ordersPagination.page;
+        const itemsPerPage = ordersPagination.rowsPerPage;
+        if (remainingItems > 0 && remainingItems <= currentPage * itemsPerPage) {
+          setOrdersPagination(prev => ({ ...prev, page: currentPage - 1 }));
+        }
       }
+
+      setSnackbar({
+        open: true,
+        message: `${itemToDelete.type} deleted successfully`,
+        severity: 'success'
+      });
 
       setDeleteDialogOpen(false);
       setItemToDelete({ id: '', type: '' });
     } catch (error) {
       console.error('Error:', error);
-      // Aquí podrías agregar un mensaje de error para el usuario
+      setSnackbar({
+        open: true,
+        message: `Error deleting ${itemToDelete.type}`,
+        severity: 'error'
+      });
     }
   };
 
@@ -227,8 +281,16 @@ export default function Dashboard() {
     fetchOrders();
   }, []);
 
-  const handlePageChange = (event: unknown, newPage: number) => {
-    setPagination(prev => ({ ...prev, page: newPage }));
+  const handleProductsPageChange = (event: unknown, newPage: number) => {
+    setProductsPagination(prev => ({ ...prev, page: newPage }));
+  };
+
+  const handleCustomersPageChange = (event: unknown, newPage: number) => {
+    setCustomersPagination(prev => ({ ...prev, page: newPage }));
+  };
+
+  const handleOrdersPageChange = (event: unknown, newPage: number) => {
+    setOrdersPagination(prev => ({ ...prev, page: newPage }));
   };
 
   const renderMainContent = () => {
@@ -437,30 +499,45 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {customers.map((customer) => (
-                    <TableRow key={customer.id} hover>
-                      <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
-                      <TableCell>{customer.email}</TableCell>
-                      <TableCell>{customer.dateCreated}</TableCell>
-                      <TableCell>{customer.orders}</TableCell>
-                      <TableCell>{customer.totalSpent}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={customer.status}
-                          color={customer.status === 'Active' ? 'success' : 'default'}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <IconButton size="small" onClick={() => handleDeleteClick(customer.id, 'customer')}>
-                          <DeleteIcon color="error" />
-                        </IconButton>
-                        <IconButton size="small">
-                          <MoreVertIcon />
-                        </IconButton>
-                      </TableCell>
+                  {loadingCustomers ? (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center">Loading customers...</TableCell>
                     </TableRow>
-                  ))}
+                  ) : customers.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center">No customers found</TableCell>
+                    </TableRow>
+                  ) : (
+                    customers
+                      .slice(
+                        customersPagination.page * customersPagination.rowsPerPage,
+                        customersPagination.page * customersPagination.rowsPerPage + customersPagination.rowsPerPage
+                      )
+                      .map((customer) => (
+                        <TableRow key={customer.id} hover>
+                          <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
+                          <TableCell>{customer.email}</TableCell>
+                          <TableCell>{customer.dateCreated}</TableCell>
+                          <TableCell>{customer.orders}</TableCell>
+                          <TableCell>{customer.totalSpent}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={customer.status}
+                              color={customer.status === 'Active' ? 'success' : 'default'}
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            <IconButton size="small" onClick={() => handleDeleteClick(customer.id, 'customer')}>
+                              <DeleteIcon color="error" />
+                            </IconButton>
+                            <IconButton size="small">
+                              <MoreVertIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -468,10 +545,20 @@ export default function Dashboard() {
             {/* Pagination */}
             <Box sx={{ 
               display: 'flex', 
-              justifyContent: 'center', 
+              justifyContent: 'flex-end', 
               mt: 3 
             }}>
-              {/* Add your pagination component here */}
+              <TablePagination
+                component="div"
+                count={customers.length}
+                page={customersPagination.page}
+                onPageChange={handleCustomersPageChange}
+                rowsPerPage={customersPagination.rowsPerPage}
+                rowsPerPageOptions={[ROWS_PER_PAGE]}
+                labelDisplayedRows={({ from, to, count }) => 
+                  `${from}-${to} of ${count}`
+                }
+              />
             </Box>
           </Paper>
         );
@@ -547,8 +634,8 @@ export default function Dashboard() {
                   ) : (
                     products
                       .slice(
-                        pagination.page * pagination.rowsPerPage,
-                        pagination.page * pagination.rowsPerPage + pagination.rowsPerPage
+                        productsPagination.page * productsPagination.rowsPerPage,
+                        productsPagination.page * productsPagination.rowsPerPage + productsPagination.rowsPerPage
                       )
                       .map((product) => (
                         <TableRow key={product.id} hover>
@@ -591,9 +678,9 @@ export default function Dashboard() {
               <TablePagination
                 component="div"
                 count={products.length}
-                page={pagination.page}
-                onPageChange={handlePageChange}
-                rowsPerPage={pagination.rowsPerPage}
+                page={productsPagination.page}
+                onPageChange={handleProductsPageChange}
+                rowsPerPage={productsPagination.rowsPerPage}
                 rowsPerPageOptions={[ROWS_PER_PAGE]}
                 labelDisplayedRows={({ from, to, count }) => 
                   `${from}-${to} of ${count}`
@@ -673,42 +760,47 @@ export default function Dashboard() {
                       <TableCell colSpan={7} align="center">No orders found</TableCell>
                     </TableRow>
                   ) : (
-                    orders.map((order) => (
-                      <TableRow key={order.id} hover>
-                        <TableCell>{order.orderNumber}</TableCell>
-                        <TableCell>{order.date}</TableCell>
-                        <TableCell>{order.customer}</TableCell>
-                        <TableCell>{order.total}</TableCell>
-                        <TableCell>
-                          <Chip
-                            label={order.status}
-                            color={
-                              order.status === 'Delivered' 
-                                ? 'success' 
-                                : order.status === 'Processing' 
-                                  ? 'warning' 
-                                  : 'default'
-                            }
-                            size="small"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={order.paymentStatus}
-                            color={order.paymentStatus === 'Paid' ? 'success' : 'error'}
-                            size="small"
-                          />
-                        </TableCell>
-                        <TableCell align="right">
-                          <IconButton size="small" onClick={() => handleDeleteClick(order.id, 'order')}>
-                            <DeleteIcon color="error" />
-                          </IconButton>
-                          <IconButton size="small">
-                            <MoreVertIcon />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                    orders
+                      .slice(
+                        ordersPagination.page * ordersPagination.rowsPerPage,
+                        ordersPagination.page * ordersPagination.rowsPerPage + ordersPagination.rowsPerPage
+                      )
+                      .map((order) => (
+                        <TableRow key={order.id} hover>
+                          <TableCell>{order.orderNumber}</TableCell>
+                          <TableCell>{order.date}</TableCell>
+                          <TableCell>{order.customer}</TableCell>
+                          <TableCell>{order.total}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={order.status}
+                              color={
+                                order.status === 'Delivered' 
+                                  ? 'success' 
+                                  : order.status === 'Processing' 
+                                    ? 'warning' 
+                                    : 'default'
+                              }
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={order.paymentStatus}
+                              color={order.paymentStatus === 'Paid' ? 'success' : 'error'}
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            <IconButton size="small" onClick={() => handleDeleteClick(order.id, 'order')}>
+                              <DeleteIcon color="error" />
+                            </IconButton>
+                            <IconButton size="small">
+                              <MoreVertIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
                   )}
                 </TableBody>
               </Table>
@@ -717,10 +809,20 @@ export default function Dashboard() {
             {/* Pagination */}
             <Box sx={{ 
               display: 'flex', 
-              justifyContent: 'center', 
+              justifyContent: 'flex-end', 
               mt: 3 
             }}>
-              {/* Add your pagination component here */}
+              <TablePagination
+                component="div"
+                count={orders.length}
+                page={ordersPagination.page}
+                onPageChange={handleOrdersPageChange}
+                rowsPerPage={ordersPagination.rowsPerPage}
+                rowsPerPageOptions={[ROWS_PER_PAGE]}
+                labelDisplayedRows={({ from, to, count }) => 
+                  `${from}-${to} of ${count}`
+                }
+              />
             </Box>
           </Paper>
         );
@@ -974,7 +1076,7 @@ export default function Dashboard() {
                   <Autocomplete
                     fullWidth
                     options={customers}
-                    getOptionLabel={(option) => `${option.name} (${option.email})`}
+                    getOptionLabel={(option) => `${option.firstName} ${option.lastName} (${option.email})`}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -1022,6 +1124,10 @@ export default function Dashboard() {
           </Grid>
         );
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
   };
 
   return (
@@ -1186,6 +1292,22 @@ export default function Dashboard() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar para notificaciones */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={handleSnackbarClose} 
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 } 

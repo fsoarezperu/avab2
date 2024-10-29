@@ -54,14 +54,28 @@ export async function PUT(
 // DELETE - Eliminar un producto
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    await prisma.product.delete({
-      where: { id: params.id },
+    const { id } = context.params;
+
+    // Primero eliminar todos los OrderItems relacionados
+    await prisma.orderItem.deleteMany({
+      where: {
+        productId: id
+      }
     });
-    return NextResponse.json({ message: 'Product deleted successfully' });
+
+    // Luego eliminar el producto
+    const deletedProduct = await prisma.product.delete({
+      where: {
+        id: id
+      }
+    });
+
+    return NextResponse.json(deletedProduct);
   } catch (error) {
+    console.error('Error deleting product:', error);
     return NextResponse.json(
       { error: 'Error deleting product' },
       { status: 500 }
