@@ -8,10 +8,23 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
+  pages: {
+    signIn: "/dashboard",
+    signOut: "/",
+  },
   callbacks: {
-    async redirect() {
-      return '/dashboard'
-    }
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith(baseUrl)) {
+        if (url === baseUrl || url === `${baseUrl}/`) {
+          return `${baseUrl}/dashboard`
+        }
+        return url
+      }
+      return baseUrl
+    },
+    async session({ session, token }) {
+      return session
+    },
   }
 });
 

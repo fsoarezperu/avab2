@@ -26,7 +26,7 @@ export default function Home() {
             {/* Logo */}
             <Box sx={{ width: 100, height: 40, position: 'relative' }}>
               <Image
-                src="/logo.png"
+                src="/new_logox2.png"
                 alt="Logo"
                 fill
                 style={{ objectFit: 'contain' }}
@@ -116,18 +116,14 @@ export default function Home() {
                 </Box>
               ) : (
                 <Button
-                  onClick={() => signIn()}
-                  variant="outlined"
-                  size="small"
+                  onClick={() => signIn('google', {
+                    callbackUrl: '/dashboard',
+                    redirect: true,
+                  })}
+                  variant="contained"
+                  color="primary"
                   sx={{
                     textTransform: 'none',
-                    borderColor: 'text.primary',
-                    color: 'text.primary',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      color: 'primary.main',
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                    }
                   }}
                 >
                   Iniciar Sesión
