@@ -55,6 +55,16 @@ interface Customer {
   status: string;
 }
 
+interface Order {
+  id: string;
+  orderNumber: string;
+  customer: string;
+  date: string;
+  total: string;
+  status: string;
+  paymentStatus: string;
+}
+
 export default function Dashboard() {
   const { data: session } = useSession();
   const [currentView, setCurrentView] = useState('dashboard');
@@ -73,26 +83,8 @@ export default function Dashboard() {
   const [loadingCustomers, setLoadingCustomers] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [orders] = useState([
-    {
-      id: '3001',
-      orderNumber: '#ORD-2024-001',
-      customer: 'John Doe',
-      date: '2024-03-15',
-      total: 'S/. 299.99',
-      status: 'Processing',
-      paymentStatus: 'Paid'
-    },
-    {
-      id: '3002',
-      orderNumber: '#ORD-2024-002',
-      customer: 'Jane Smith',
-      date: '2024-03-14',
-      total: 'S/. 149.50',
-      status: 'Delivered',
-      paymentStatus: 'Paid'
-    },
-  ]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
   const [productData, setProductData] = useState({
     name: '',
     sku: '',
@@ -198,12 +190,29 @@ export default function Dashboard() {
     }
   };
 
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch('/api/orders');
+      if (!response.ok) throw new Error('Error fetching orders');
+      const data = await response.json();
+      setOrders(data);
+    } catch (error) {
+      console.error('Error loading orders:', error);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
   }, []);
 
   useEffect(() => {
     fetchCustomers();
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
   }, []);
 
   const renderMainContent = () => {
@@ -624,42 +633,52 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {orders.map((order) => (
-                    <TableRow key={order.id} hover>
-                      <TableCell>{order.orderNumber}</TableCell>
-                      <TableCell>{order.date}</TableCell>
-                      <TableCell>{order.customer}</TableCell>
-                      <TableCell>{order.total}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={order.status}
-                          color={
-                            order.status === 'Delivered' 
-                              ? 'success' 
-                              : order.status === 'Processing' 
-                                ? 'warning' 
-                                : 'default'
-                          }
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={order.paymentStatus}
-                          color={order.paymentStatus === 'Paid' ? 'success' : 'error'}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <IconButton size="small" onClick={() => handleDeleteClick(order.id, 'order')}>
-                          <DeleteIcon color="error" />
-                        </IconButton>
-                        <IconButton size="small">
-                          <MoreVertIcon />
-                        </IconButton>
-                      </TableCell>
+                  {loadingOrders ? (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center">Loading orders...</TableCell>
                     </TableRow>
-                  ))}
+                  ) : orders.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center">No orders found</TableCell>
+                    </TableRow>
+                  ) : (
+                    orders.map((order) => (
+                      <TableRow key={order.id} hover>
+                        <TableCell>{order.orderNumber}</TableCell>
+                        <TableCell>{order.date}</TableCell>
+                        <TableCell>{order.customer}</TableCell>
+                        <TableCell>{order.total}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={order.status}
+                            color={
+                              order.status === 'Delivered' 
+                                ? 'success' 
+                                : order.status === 'Processing' 
+                                  ? 'warning' 
+                                  : 'default'
+                            }
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={order.paymentStatus}
+                            color={order.paymentStatus === 'Paid' ? 'success' : 'error'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <IconButton size="small" onClick={() => handleDeleteClick(order.id, 'order')}>
+                            <DeleteIcon color="error" />
+                          </IconButton>
+                          <IconButton size="small">
+                            <MoreVertIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
