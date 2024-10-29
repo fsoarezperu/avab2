@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession, signOut } from "next-auth/react";
 import {
   Container, Box, Typography, Grid, Paper, Stack, Button, AppBar, Toolbar, Avatar,
@@ -31,6 +31,18 @@ import EmailIcon from '@mui/icons-material/Email';
 import SecurityIcon from '@mui/icons-material/Security';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import { Decimal } from '@prisma/client/runtime/library';
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number | string | Decimal;
+  stock: number;
+  imageUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -67,25 +79,8 @@ export default function Dashboard() {
     },
     // Añade más clientes de ejemplo aquí
   ]);
-  const [products] = useState([
-    {
-      id: '2001',
-      name: 'Product A',
-      sku: 'SKU001',
-      price: 'S/. 99.99',
-      stock: 50,
-      status: 'Available'
-    },
-    {
-      id: '2002',
-      name: 'Product B',
-      sku: 'SKU002',
-      price: 'S/. 149.99',
-      stock: 20,
-      status: 'Out of Stock'
-    },
-    // Add more example products here
-  ]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [orders] = useState([
     {
       id: '3001',
@@ -168,6 +163,23 @@ export default function Dashboard() {
     setDeleteDialogOpen(false);
     setItemToDelete({ id: '', type: '' });
   };
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/products');
+      if (!response.ok) throw new Error('Error fetching products');
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const renderMainContent = () => {
     switch(currentView) {
@@ -466,7 +478,7 @@ export default function Dashboard() {
                 <TableHead>
                   <TableRow>
                     <TableCell>Name</TableCell>
-                    <TableCell>SKU</TableCell>
+                    <TableCell>Description</TableCell>
                     <TableCell>Price</TableCell>
                     <TableCell>Stock</TableCell>
                     <TableCell>Status</TableCell>
@@ -474,29 +486,43 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {products.map((product) => (
-                    <TableRow key={product.id} hover>
-                      <TableCell>{product.name}</TableCell>
-                      <TableCell>{product.sku}</TableCell>
-                      <TableCell>{product.price}</TableCell>
-                      <TableCell>{product.stock}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={product.status}
-                          color={product.status === 'Available' ? 'success' : 'default'}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <IconButton size="small" onClick={() => handleDeleteClick(product.id, 'product')}>
-                          <DeleteIcon color="error" />
-                        </IconButton>
-                        <IconButton size="small">
-                          <MoreVertIcon />
-                        </IconButton>
-                      </TableCell>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">Loading products...</TableCell>
                     </TableRow>
-                  ))}
+                  ) : products.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">No products found</TableCell>
+                    </TableRow>
+                  ) : (
+                    products.map((product) => (
+                      <TableRow key={product.id} hover>
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell>{product.description}</TableCell>
+                        <TableCell>
+                          S/. {typeof product.price === 'number' 
+                            ? product.price.toFixed(2) 
+                            : parseFloat(product.price.toString()).toFixed(2)}
+                        </TableCell>
+                        <TableCell>{product.stock}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                            color={product.stock > 0 ? 'success' : 'error'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <IconButton size="small" onClick={() => handleDeleteClick(product.id, 'product')}>
+                            <DeleteIcon color="error" />
+                          </IconButton>
+                          <IconButton size="small">
+                            <MoreVertIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
