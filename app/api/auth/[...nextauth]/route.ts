@@ -9,8 +9,7 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      // Redirige al dashboard después del login exitoso
+    async redirect() {
       return '/dashboard'
     }
   }
