@@ -35,31 +35,28 @@ export async function GET(request: NextRequest) {
 }
 
 // PUT - Actualizar un producto
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest) {
   try {
+    const id = request.url.split('/').pop();
     const data = await request.json();
 
-    // Validate and parse input data
-    const updatedData = {
-      name: data.name,
-      description: data.description,
-      price: parseFloat(data.price),
-      imageUrl: data.imageUrl,
-      stock: parseInt(data.stock, 10),
-    };
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID no proporcionado' },
+        { status: 400 }
+      );
+    }
 
-    const product = await prisma.product.update({
-      where: { id: params.id },
-      data: updatedData,
+    const updatedProduct = await prisma.product.update({
+      where: { id },
+      data,
     });
-    return NextResponse.json(product);
-  } catch (error: unknown) {
+
+    return NextResponse.json(updatedProduct);
+  } catch (error) {
     console.error('Error updating product:', error);
     return NextResponse.json(
-      { error: 'Error updating product' },
+      { error: 'Error al actualizar el producto' },
       { status: 500 }
     );
   }
