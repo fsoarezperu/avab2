@@ -3,10 +3,10 @@ import prisma from '@/lib/prisma';
 
 export async function DELETE(
   request: Request,
-  context: { params: { type: string; id: string } }
+  { params }: { params: { type: string; id: string } }
 ) {
   try {
-    const { type, id } = context.params;
+    const { type, id } = params;
     let result;
 
     switch (type) {
