@@ -3,20 +3,20 @@ import prisma from '@/lib/prisma';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     // Primero eliminar todos los OrderItems asociados
     await prisma.orderItem.deleteMany({
       where: {
-        orderId: params.id
+        orderId: context.params.id
       }
     });
 
     // Luego eliminar la orden
     const order = await prisma.order.delete({
       where: {
-        id: params.id
+        id: context.params.id
       }
     });
 
