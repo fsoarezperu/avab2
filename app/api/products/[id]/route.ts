@@ -2,25 +2,33 @@ import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 
 // GET - Obtener un producto específico
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
+    const id = request.url.split('/').pop();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID no proporcionado' },
+        { status: 400 }
+      );
+    }
+
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
+
     if (!product) {
       return NextResponse.json(
-        { error: 'Product not found' },
+        { error: 'Producto no encontrado' },
         { status: 404 }
       );
     }
+
     return NextResponse.json(product);
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error fetching product:', error);
     return NextResponse.json(
-      { error: 'Error fetching product' },
+      { error: 'Error al obtener el producto' },
       { status: 500 }
     );
   }
@@ -58,22 +66,26 @@ export async function PUT(
 }
 
 // DELETE - Eliminar un producto
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const { id } = params;
-
+export async function DELETE(request: NextRequest) {
   try {
+    const id = request.url.split('/').pop();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID no proporcionado' },
+        { status: 400 }
+      );
+    }
+
     const deletedProduct = await prisma.product.delete({
       where: { id },
     });
 
     return NextResponse.json(deletedProduct);
   } catch (error) {
-    console.error('Error eliminando el producto:', error);
+    console.error('Error deleting product:', error);
     return NextResponse.json(
-      { error: 'Error eliminando el producto' },
+      { error: 'Error al eliminar el producto' },
       { status: 500 }
     );
   }
