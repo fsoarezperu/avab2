@@ -17,7 +17,8 @@ export async function GET(
       );
     }
     return NextResponse.json(product);
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Error fetching product:', error);
     return NextResponse.json(
       { error: 'Error fetching product' },
       { status: 500 }
@@ -32,18 +33,23 @@ export async function PUT(
 ) {
   try {
     const data = await request.json();
+
+    // Validate and parse input data
+    const updatedData = {
+      name: data.name,
+      description: data.description,
+      price: parseFloat(data.price),
+      imageUrl: data.imageUrl,
+      stock: parseInt(data.stock, 10),
+    };
+
     const product = await prisma.product.update({
       where: { id: params.id },
-      data: {
-        name: data.name,
-        description: data.description,
-        price: parseFloat(data.price),
-        imageUrl: data.imageUrl,
-        stock: parseInt(data.stock),
-      },
+      data: updatedData,
     });
     return NextResponse.json(product);
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Error updating product:', error);
     return NextResponse.json(
       { error: 'Error updating product' },
       { status: 500 }
@@ -74,7 +80,7 @@ export async function DELETE(
     });
 
     return NextResponse.json(deletedProduct);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error deleting product:', error);
     return NextResponse.json(
       { error: 'Error deleting product' },

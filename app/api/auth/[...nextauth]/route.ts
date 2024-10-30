@@ -22,7 +22,7 @@ const handler = NextAuth({
       }
       return baseUrl
     },
-    async session({ session, token }) {
+    async session({ session}) {
       return session
     },
   }

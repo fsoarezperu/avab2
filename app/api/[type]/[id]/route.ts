@@ -31,6 +31,7 @@ export async function DELETE(
 
     return NextResponse.json(result);
   } catch (error) {
+    console.error('Error deleting record:', error);
     return NextResponse.json(
       { error: 'Error deleting record' },
       { status: 500 }

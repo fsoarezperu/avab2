@@ -23,7 +23,7 @@ export async function DELETE(
     });
 
     return NextResponse.json(deletedOrder);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error deleting order:', error);
     return NextResponse.json(
       { error: 'Error deleting order' },
