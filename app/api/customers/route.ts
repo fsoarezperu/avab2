@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { NextResponse } from "next/server";
-
+import { NextResponse, NextRequest } from "next/server";
+import prisma from "@/lib/prisma";
 export async function GET() {
   try {
     const customers = await db.customer.findMany({
@@ -46,3 +46,24 @@ export async function GET() {
     );
   }
 } 
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const { id } = params;
+
+  try {
+    const deletedCustomer = await prisma.customer.delete({
+      where: { id },
+    });
+
+    return NextResponse.json(deletedCustomer);
+  } catch (error) {
+    console.error('Error eliminando el cliente:', error);
+    return NextResponse.json(
+      { error: 'Error eliminando el cliente' },
+      { status: 500 }
+    );
+  }
+}

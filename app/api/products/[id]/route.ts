@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 
 // GET - Obtener un producto específico
@@ -59,31 +59,21 @@ export async function PUT(
 
 // DELETE - Eliminar un producto
 export async function DELETE(
-  request: Request,
-  context: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
+  const { id } = params;
+
   try {
-    const { id } = context.params;
-
-    // Primero eliminar todos los OrderItems relacionados
-    await prisma.orderItem.deleteMany({
-      where: {
-        productId: id
-      }
-    });
-
-    // Luego eliminar el producto
     const deletedProduct = await prisma.product.delete({
-      where: {
-        id: id
-      }
+      where: { id },
     });
 
     return NextResponse.json(deletedProduct);
-  } catch (error: unknown) {
-    console.error('Error deleting product:', error);
+  } catch (error) {
+    console.error('Error eliminando el producto:', error);
     return NextResponse.json(
-      { error: 'Error deleting product' },
+      { error: 'Error eliminando el producto' },
       { status: 500 }
     );
   }
