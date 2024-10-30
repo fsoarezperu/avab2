@@ -1,27 +1,28 @@
 import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = request.url.split('/').pop();
-
-    if (!id) {
-      return NextResponse.json(
-        { error: 'ID no proporcionado' },
-        { status: 400 }
-      );
-    }
-
-    const deletedOrder = await prisma.order.delete({
-      where: { id },
+    // Primero eliminar todos los OrderItems asociados
+    await prisma.orderItem.deleteMany({
+      where: {
+        orderId: params.id
+      }
     });
 
-    return NextResponse.json(deletedOrder);
+    // Luego eliminar la orden
+    const order = await prisma.order.delete({
+      where: {
+        id: params.id
+      }
+    });
+
+    return NextResponse.json(order);
   } catch (error) {
     console.error('Error deleting order:', error);
-    return NextResponse.json(
-      { error: 'Error al eliminar la orden' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Error deleting order' }, { status: 500 });
   }
 } 
