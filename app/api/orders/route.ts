@@ -1,6 +1,13 @@
 import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
+// Define a type for the order item
+interface OrderItem {
+  productId: string;
+  quantity: number;
+  price: number;
+}
+
 export async function GET() {
   try {
     const orders = await db.order.findMany({
@@ -34,7 +41,7 @@ export async function GET() {
     }));
 
     return NextResponse.json(formattedOrders);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error loading orders:', error);
     return NextResponse.json({ error: 'Error loading orders' }, { status: 500 });
   }
@@ -48,11 +55,13 @@ export async function POST(request: Request) {
       data: {
         orderNumber: `ORD-${Date.now()}`,
         customerId: data.customerId,
+        customer: { connect: { id: data.customerId } },
+        user: { connect: { id: data.userId } },
         total: data.total,
         status: 'Processing',
         paymentStatus: 'Pending',
         items: {
-          create: data.items.map((item: any) => ({
+          create: data.items.map((item: OrderItem) => ({
             productId: item.productId,
             quantity: item.quantity,
             price: item.price
@@ -62,7 +71,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(order);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error creating order:', error);
     return NextResponse.json({ error: 'Error creating order' }, { status: 500 });
   }

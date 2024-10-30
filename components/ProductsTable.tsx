@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Image from 'next/image';
 
 interface Product {
   id: string;
@@ -74,10 +75,12 @@ export default function ProductsTable({
           {products.map((product) => (
             <TableRow key={product.id}>
               <TableCell>
-                <img 
+                <Image 
                   src={product.imageUrl || '/placeholder.png'} 
                   alt={product.name} 
-                  style={{ width: 50, height: 50, objectFit: 'cover' }}
+                  width={50} 
+                  height={50} 
+                  style={{ objectFit: 'cover' }}
                 />
               </TableCell>
               <TableCell>{product.name}</TableCell>
