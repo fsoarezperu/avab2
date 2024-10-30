@@ -167,52 +167,108 @@ export default function Dashboard() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Si no estamos en la vista de addProduct, usar el manejador existente
+    if (currentView !== 'addProduct') {
+      try {
+        const response = await fetch('/api/customers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(customerData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Error creating customer');
+        }
+
+        const newCustomer = await response.json();
+        
+        // Actualizar la lista de clientes
+        setCustomers(prev => [...prev, newCustomer]);
+        
+        // Mostrar mensaje de éxito
+        setSnackbar({
+          open: true,
+          message: 'Customer created successfully',
+          severity: 'success'
+        });
+
+        // Limpiar el formulario
+        setCustomerData({
+          email: '',
+          firstName: '',
+          lastName: '',
+          company: '',
+          phone: '',
+          notes: '',
+          customerGroup: '',
+          storeCredit: '',
+          status: 'active'
+        });
+
+        // Volver a la vista de clientes
+        setCurrentView('customers');
+
+      } catch (error) {
+        console.error('Error creating customer:', error);
+        setSnackbar({
+          open: true,
+          message: 'Error creating customer',
+          severity: 'error'
+        });
+      }
+      return;
+    }
+
     try {
-      const response = await fetch('/api/customers', {
+      const response = await fetch('/api/products', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(customerData),
+        body: JSON.stringify(productData),
       });
 
       if (!response.ok) {
-        throw new Error('Error creating customer');
+        throw new Error('Error creating product');
       }
 
-      const newCustomer = await response.json();
+      const newProduct = await response.json();
       
-      // Actualizar la lista de clientes
-      setCustomers(prev => [...prev, newCustomer]);
+      // Actualizar la lista de productos
+      setProducts(prev => [...prev, newProduct]);
       
       // Mostrar mensaje de éxito
       setSnackbar({
         open: true,
-        message: 'Customer created successfully',
+        message: 'Product created successfully',
         severity: 'success'
       });
 
       // Limpiar el formulario
-      setCustomerData({
-        email: '',
-        firstName: '',
-        lastName: '',
-        company: '',
-        phone: '',
-        notes: '',
-        customerGroup: '',
-        storeCredit: '',
-        status: 'active'
+      setProductData({
+        name: '',
+        sku: '',
+        price: '',
+        description: '',
+        brand: '',
+        category: '',
+        weight: '',
+        stock: '',
+        status: 'active',
+        taxable: true,
+        visibility: 'visible'
       });
 
-      // Volver a la vista de clientes
-      setCurrentView('customers');
+      // Volver a la vista de productos
+      setCurrentView('products');
 
     } catch (error) {
-      console.error('Error creating customer:', error);
+      console.error('Error creating product:', error);
       setSnackbar({
         open: true,
-        message: 'Error creating customer',
+        message: 'Error creating product',
         severity: 'error'
       });
     }
