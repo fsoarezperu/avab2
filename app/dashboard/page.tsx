@@ -164,9 +164,58 @@ export default function Dashboard() {
     totalProducts: 0
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(customerData);
+    
+    try {
+      const response = await fetch('/api/customers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(customerData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error creating customer');
+      }
+
+      const newCustomer = await response.json();
+      
+      // Actualizar la lista de clientes
+      setCustomers(prev => [...prev, newCustomer]);
+      
+      // Mostrar mensaje de éxito
+      setSnackbar({
+        open: true,
+        message: 'Customer created successfully',
+        severity: 'success'
+      });
+
+      // Limpiar el formulario
+      setCustomerData({
+        email: '',
+        firstName: '',
+        lastName: '',
+        company: '',
+        phone: '',
+        notes: '',
+        customerGroup: '',
+        storeCredit: '',
+        status: 'active'
+      });
+
+      // Volver a la vista de clientes
+      setCurrentView('customers');
+
+    } catch (error) {
+      console.error('Error creating customer:', error);
+      setSnackbar({
+        open: true,
+        message: 'Error creating customer',
+        severity: 'error'
+      });
+    }
   };
 
   const handleDeleteClick = (id: string, type: string) => {
