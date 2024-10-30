@@ -27,11 +27,9 @@ interface Product {
 }
 
 export default function ProductsTable({ 
-  onEdit, 
-  onDelete 
+  onEdit
 }: { 
   onEdit: (product: Product) => void;
-  onDelete: (id: string) => void;
 }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
