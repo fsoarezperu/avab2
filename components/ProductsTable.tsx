@@ -55,6 +55,28 @@ export default function ProductsTable({
     }
   };
 
+  const handleDelete = async (id: string) => {
+    if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) return;
+
+    try {
+      const response = await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al eliminar el producto');
+      }
+
+      const result = await response.json();
+      console.log('Producto eliminado:', result);
+      // Actualiza el estado local para reflejar la eliminación
+      setProducts(products.filter(product => product.id !== id));
+    } catch (error) {
+      console.error(error);
+      alert('Hubo un error al eliminar el producto. Inténtalo de nuevo.');
+    }
+  };
+
   if (loading) return <Typography>Loading products...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
 
@@ -96,7 +118,7 @@ export default function ProductsTable({
                 <IconButton onClick={() => onEdit(product)}>
                   <EditIcon />
                 </IconButton>
-                <IconButton onClick={() => onDelete(product.id)} color="error">
+                <IconButton onClick={() => handleDelete(product.id)} color="error">
                   <DeleteIcon />
                 </IconButton>
               </TableCell>
