@@ -1,12 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 
+interface Params {
+  type: 'products' | 'customers' | 'orders';
+  id: string;
+}
+
 export async function DELETE(
-  request: Request,
-  { params }: { params: { type: string; id: string } }
+  request: NextRequest,
+  context: { params: Params }
 ) {
   try {
-    const { type, id } = params;
+    const { type, id } = context.params;
     let result;
 
     switch (type) {
@@ -26,14 +31,17 @@ export async function DELETE(
         });
         break;
       default:
-        throw new Error('Invalid type');
+        return NextResponse.json(
+          { error: 'Tipo inválido' },
+          { status: 400 }
+        );
     }
 
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error deleting record:', error);
     return NextResponse.json(
-      { error: 'Error deleting record' },
+      { error: 'Error eliminando el registro' },
       { status: 500 }
     );
   }
