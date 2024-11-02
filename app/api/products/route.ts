@@ -16,25 +16,29 @@ export async function GET() {
   }
 }
 
-// POST - Crear un nuevo producto
+// POST - Crear un nuevo cliente
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
+    console.log('Datos recibidos:', data);
+
     const product = await prisma.product.create({
       data: {
         name: data.name,
         description: data.description,
         price: parseFloat(data.price),
-        imageUrl: data.imageUrl,
         stock: parseInt(data.stock),
-        sku: `SKU-${Date.now()}`, // Generando un SKU único
-      },
+        category: data.category,
+        status: data.status || 'active',
+        // Agrega aquí otros campos según tu schema de Product
+      }
     });
+
     return NextResponse.json(product);
   } catch (error) {
-    console.error('Error creating product:', error);
+    console.error('Error detallado:', error);
     return NextResponse.json(
-      { error: 'Error al crear el producto' },
+      { error: 'Error creating product' },
       { status: 500 }
     );
   }

@@ -1,5 +1,8 @@
-import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+import { PrismaClient } from '@prisma/client'
+import NextAuth from 'next-auth'
+import GoogleProvider from 'next-auth/providers/google'
+
+const prisma = new PrismaClient()
 
 const handler = NextAuth({
   providers: [
@@ -8,24 +11,34 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  pages: {
-    signIn: "/dashboard",
-    signOut: "/",
-  },
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      if (url.startsWith(baseUrl)) {
-        if (url === baseUrl || url === `${baseUrl}/`) {
-          return `${baseUrl}/dashboard`
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google") {
+        try {
+          // Buscar o crear usuario
+          const existingUser = await prisma.user.upsert({
+            where: {
+              email: user.email!,
+            },
+            update: {
+              name: user.name,
+              image: user.image,
+            },
+            create: {
+              email: user.email!,
+              name: user.name,
+              image: user.image,
+            },
+          })
+          return true
+        } catch (error) {
+          console.error("Error saving user:", error)
+          return false
         }
-        return url
       }
-      return baseUrl
+      return true
     },
-    async session({ session}) {
-      return session
-    },
-  }
-});
+  },
+})
 
-export { handler as GET, handler as POST }; 
+export { handler as GET, handler as POST } 
